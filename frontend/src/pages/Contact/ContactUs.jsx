@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import emailjs from "emailjs-com";
+import emailjs from '@emailjs/browser';
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -15,7 +15,7 @@ const ContactSection = () => {
   const goHome = () => {
     navigate("/");
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
