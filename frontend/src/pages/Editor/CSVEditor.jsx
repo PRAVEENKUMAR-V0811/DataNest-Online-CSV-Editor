@@ -325,9 +325,9 @@ const CSVEditor = () => {
                 <table className="table-auto w-full border-collapse text-center">
                     <thead>
                         <tr>
-                            <th className="border px-2 py-1 text-center">S.No</th>
+                            <th className="border px-2 py-1 text-center relative sticky top-0 bg-green-600 text-white">S.No</th>
                             {columns.map((col, index) => (
-                                <th key={index} className="border px-2 py-1 text-center relative">
+                                <th key={index} className="border px-2 py-1 text-center relative sticky top-0 bg-green-600 text-white">
                                     {col}
                                     <button
                                         onClick={() => setMenuOpenIndex(index)}
@@ -336,7 +336,7 @@ const CSVEditor = () => {
                                         <FiMoreVertical />
                                     </button>
                                     {menuOpenIndex === index && (
-                                        <div ref={(ref) => dropdownRefs.current[index] = ref} className="absolute bg-white border shadow p-2 z-10 right-0">
+                                        <div ref={(ref) => dropdownRefs.current[index] = ref} className="absolute bg-white border shadow p-2 z-10 right-0 sticky top-0 ">
                                             <button onClick={() => handleDeleteColumn(index)} className="flex items-center text-sm">
                                                 <FiTrash className="mr-1" /> Delete Column
                                             </button>
