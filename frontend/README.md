@@ -41,17 +41,20 @@ Effortlessly manage your CSV files online with DataNest. Upload, edit, and expor
     npm install
 
 4. **Run Project**:
-    ``bash
+    ```bash
     npm run dev
 
 ---
 
 ## 📸 Screenshots
------------------------------------------
-| Upload CSV | Edit Table | Export File |
-|------------|------------|-------------|
-| ![Upload](./src/assets/heroimg.png) | ![Edit](./src/assets/heroimg.png) | ![Export](./src/assets/heroimg.png) |
------------------------------------------
+
+| Upload CSV | Export File |
+|------------|-------------|
+| ![Upload](./src/assets/uploadSnap.png) | ![Export](./src/assets/exportSnap.png) |
+
+| View & Edit File | New File Editor |
+|------------|-------------|
+| ![Upload](./src/assets/viewSnap.png) | ![New File](./src/assets/editorSnap.png) |
 
 ---
 
@@ -84,6 +87,7 @@ Effortlessly manage your CSV files online with DataNest. Upload, edit, and expor
 ---
 
 ## 👤 Author
-**Praveen Kumar V**
-[Mail ID](mailto:praveenkumarv0811@gmail.com)
+**Praveen Kumar V** <br>
+*B.E. Artificial Intelligence and Machine Learning* <br>
+[Mail ID](mailto:praveenkumarv0811@gmail.com) <br>
 [Portfolio](https://buildwithpraveen.vercel.app) | [LinkedIn](https://www.linkedin.com/in/praveenkumar-v08/)
