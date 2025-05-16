@@ -1,4 +1,8 @@
-# DataNest - Data, Made Easy
+<p align="left">
+  <img src="./frontend//src/assets/logo2.png" alt="DataNest Logo" width="40" style="vertical-align: middle;"/>
+  <span style="font-size: 2rem; font-weight: bold; vertical-align: middle;">DataNest - Data, Made Easy</span>
+</p>
+
 
 Effortlessly manage your CSV files online with DataNest. Upload, edit, and export CSVs – all in your browser, no sign-up required.
 
@@ -50,11 +54,11 @@ Effortlessly manage your CSV files online with DataNest. Upload, edit, and expor
 
 | Upload CSV | Export File |
 |------------|-------------|
-| ![Upload](./src/assets/uploadSnap.png) | ![Export](./src/assets/exportSnap.png) |
+| ![Upload](./frontend/src/assets/uploadSnap.png) | ![Export](./frontend/src/assets/exportSnap.png) |
 
 | View & Edit File | New File Editor |
 |------------|-------------|
-| ![Upload](./src/assets/viewSnap.png) | ![New File](./src/assets/editorSnap.png) |
+| ![Upload](./frontend/src/assets/viewSnap.png) | ![New File](./frontend/src/assets/editorSnap.png) |
 
 ---
 
