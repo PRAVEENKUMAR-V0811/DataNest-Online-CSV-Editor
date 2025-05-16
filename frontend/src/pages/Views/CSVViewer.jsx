@@ -88,7 +88,7 @@ useEffect(() => {
 
 
   if (!tableData || tableData.length === 0) {
-    return <p className="text-center text-gray-500 mt-4">No data to display</p>;
+    return <p className="text-center text-red-700 font-bold mt-4 text-4xl">No data found! Get started by hitting the '+ Create New File' button below</p>;
   }
 
   let columns = Object.keys(tableData[0]).filter((col) => !hiddenColumns.includes(col));
@@ -135,15 +135,19 @@ useEffect(() => {
     toast.success("File Name Saved");
   };
 
-  const handleDownload = () => {
-  if (!tableData || tableData.length === 0) return;
+const handleDownload = () => {
+  if (!tableData || tableData.length === 0) {
+    return;
+  }
 
   const csvRows = [];
   const allColumns = Object.keys(tableData[0]);
   csvRows.push(allColumns.join(','));
 
   filteredData.forEach((row) => {
-    const vals = allColumns.map((col) => `"${(row[col] ?? '').toString().replace(/"/g, '""')}"`);
+    const vals = allColumns.map(
+      (col) => `"${(row[col] ?? '').toString().replace(/"/g, '""')}"`
+    );
     csvRows.push(vals.join(','));
   });
 
@@ -153,15 +157,27 @@ useEffect(() => {
   const a = document.createElement('a');
   a.href = url;
 
-  let fileToDownload = filename.trim() === '' ? 'data.csv' : filename.trim();
+  let fileToDownload = filename.trim() === '' ? 'untitled.csv' : filename.trim();
   if (!fileToDownload.toLowerCase().endsWith('.csv')) {
     fileToDownload += '.csv';
   }
 
   a.download = fileToDownload;
+
+  // Append to DOM for Firefox compatibility
+  document.body.appendChild(a);
+
   a.click();
-  window.URL.revokeObjectURL(url);
-  toast.success(`${filename} downloaded`);
+
+  // Remove the element after clicking
+  document.body.removeChild(a);
+
+  // Delay revoking URL to ensure download starts
+  setTimeout(() => {
+    window.URL.revokeObjectURL(url);
+  }, 100);
+
+  toast.success(`${fileToDownload} downloaded`);
 };
 
 

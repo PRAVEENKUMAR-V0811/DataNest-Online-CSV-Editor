@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 const CSVUpload = () => {
   const [loading, setLoading] = useState(false);
   const [csvData, setCsvData] = useState(null);
+  const [fileName, setFileName] = useState(''); // New state for file name
 
   const handleFile = (file) => {
     if (!file || file.size > 300 * 1024 * 1024) {
@@ -15,7 +16,6 @@ const CSVUpload = () => {
     }
 
     setLoading(true);
-
     toast.loading("Processing file...", { id: 'loadingToast' });
 
     setTimeout(() => {
@@ -24,6 +24,7 @@ const CSVUpload = () => {
         skipEmptyLines: true,
         complete: (results) => {
           setCsvData(results.data);
+          setFileName(file.name);  // Save the uploaded file name here
           setLoading(false);
           toast.dismiss('loadingToast');
           toast.success("File loaded successfully!");
@@ -70,12 +71,14 @@ const CSVUpload = () => {
 
       {loading && (
         <div className="mt-6 flex flex-col items-center gap-2">
-            <div className="h-10 w-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm font-medium text-purple-700">Processing file...</p>
+          <div className="h-10 w-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-medium text-purple-700">Processing file...</p>
         </div>
-        )}
+      )}
 
-      {csvData && !loading && <CSVViewer data={csvData} />}
+      {csvData && !loading && (
+        <CSVViewer data={csvData} initialFilename={fileName} />
+      )}
     </div>
   );
 };

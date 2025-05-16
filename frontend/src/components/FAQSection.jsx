@@ -4,15 +4,19 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 const faqs = [
   {
     question: "What is DataNest?",
-    answer: "DataNest is a tool that allows you to manage, store, and share your data interactively through a chat-like interface."
+    answer: "DataNest is a dynamic CSV file management tool that allows users to upload, view, edit, and download CSV data through an interactive and intuitive interface."
   },
   {
     question: "How do I upload a file?",
-    answer: "You can click the 'Upload File' button on the dashboard, select your file, and it will be processed instantly."
+    answer: "You can drag and drop your file or click to browse and upload it—your file will be processed instantly."
   },
   {
-    question: "Is my data secure?",
-    answer: "Yes, we prioritize data privacy and follow standard encryption practices to keep your data safe."
+    question: "Is Signup required?",
+    answer: "No, signup is not required. You can upload, edit, and download your files instantly without creating an account."
+  },
+  {
+    question: "Can I create a new CSV file from scratch?",
+    answer : "Absolutely! Just click “Create New File” to start building a custom CSV file with full editing capabilities."
   },
   {
     question: "Can I export my data?",

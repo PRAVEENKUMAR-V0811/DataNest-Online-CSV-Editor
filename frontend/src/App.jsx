@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import DashBoard from './pages/Home/DashBoard';
 import ContactUs from './pages/Contact/ContactUs';
 import CSVEditor from './pages/Editor/CSVEditor';
+import EditableTable from './pages/EditableTable';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
           <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/create-csv" element={<CSVEditor />} />
+          <Route path="/excel" element={<EditableTable />} />
         </Routes>
       </Router>
     </div>

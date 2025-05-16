@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FiMoreVertical, FiTrash, FiDownload, FiSave, FiPlus, FiHome, FiFilter, FiChevronUp, FiChevronDown, FiUserPlus, FiUploadCloud, FiUpload } from 'react-icons/fi';
+import { FiMoreVertical, FiTrash, FiDownload, FiSave, FiPlus, FiFilter, FiUpload } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 import logo from "../../assets/logo2.png";
 
@@ -15,8 +15,13 @@ const CSVEditor = () => {
     const [rows, setRows] = useState(defaultRows);
     const [menuOpenIndex, setMenuOpenIndex] = useState(null);
     const [filters, setFilters] = useState({});
-    const [sortConfig, setSortConfig] = useState(null);
     const dropdownRefs = useRef({});
+
+    const [selectedCell, setSelectedCell] = useState({ row: 0, col: 0 });
+    const [rangeStart, setRangeStart] = useState(null);
+    const [rangeEnd, setRangeEnd] = useState(null);
+    const inputRefs = useRef([]);
+
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -89,7 +94,7 @@ const CSVEditor = () => {
 
     const handleDownload = () => {
         let filteredRows = rows;
-        
+
         toast.success(`${fileName}.csv downloaded`);
         Object.entries(filters).forEach(([colIndexStr, filterVal]) => {
             const colIndex = parseInt(colIndexStr);
@@ -99,17 +104,8 @@ const CSVEditor = () => {
                 );
             }
         }
-    );
+        );
 
-        if (sortConfig) {
-            filteredRows = [...filteredRows].sort((a, b) => {
-                const aVal = a[sortConfig.index + 1];
-                const bVal = b[sortConfig.index + 1];
-                if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-                if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-                return 0;
-            });
-        }
 
         const csvContent = [
             columns.join(','),
@@ -136,24 +132,20 @@ const CSVEditor = () => {
     };
 
 
-    const handleSortAsc = (index) => {
-        setSortConfig({ index, direction: 'asc' });
-        setMenuOpenIndex(null);
-    };
-    const handleSortDesc = (index) => {
-        setSortConfig({ index, direction: 'desc' });
-        setMenuOpenIndex(null);
-    };
-
-    const toggleFilterInput = (index) => {
-        if (filters[index] === undefined) {
-            setFilters({ ...filters, [index]: '' });
+    const toggleFilterInput = () => {
+        if (Object.keys(filters).length === 0) {
+            // Enable all filters
+            const allFilters = {};
+            columns.forEach((_, index) => {
+                allFilters[index] = '';
+            });
+            setFilters(allFilters);
         } else {
-            const newFilters = { ...filters };
-            delete newFilters[index];
-            setFilters(newFilters);
+            // Disable all filters
+            setFilters({});
         }
     };
+
 
     const handleFilterChange = (index, val) => {
         setFilters({ ...filters, [index]: val });
@@ -169,15 +161,88 @@ const CSVEditor = () => {
         }
     });
 
-    if (sortConfig) {
-        displayedRows = [...displayedRows].sort((a, b) => {
-            const aVal = a[sortConfig.index + 1];
-            const bVal = b[sortConfig.index + 1];
-            if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-            if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-            return 0;
-        });
+    const focusCell = ({ row, col }) => {
+        const input = inputRefs.current[row]?.[col];
+        if (input) input.focus();
+    };
+
+    useEffect(() => {
+        focusCell(selectedCell);
+    }, [selectedCell]);
+
+    const isInRange = (row, col) => {
+        if (!rangeStart || !rangeEnd) return false;
+        const rowMin = Math.min(rangeStart.row, rangeEnd.row);
+        const rowMax = Math.max(rangeStart.row, rangeEnd.row);
+        const colMin = Math.min(rangeStart.col, rangeEnd.col);
+        const colMax = Math.max(rangeStart.col, rangeEnd.col);
+        return row >= rowMin && row <= rowMax && col >= colMin && col <= colMax;
+    };
+
+    const handleKeyDown = (e, row, col) => {
+    let nextRow = row;
+    let nextCol = col;
+
+    if (e.key === 'Enter' || e.key === 'ArrowDown') {
+        nextRow = (row + 1) % rows.length;
+    } else if (e.key === 'ArrowUp') {
+        nextRow = (row - 1 + rows.length) % rows.length;
+    } else if (e.key === 'ArrowRight') {
+        nextCol = (col + 1) % columns.length;
+    } else if (e.key === 'ArrowLeft') {
+        nextCol = (col - 1 + columns.length) % columns.length;
+    } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        const updated = [...rows];
+
+        if (rangeStart && rangeEnd) {
+            // If there's a selected range, clear all those cells
+            for (let r = 0; r < rows.length; r++) {
+                for (let c = 0; c < columns.length; c++) {
+                    if (isInRange(r, c)) {
+                        updated[r][c + 1] = '';
+                    }
+                }
+            }
+        } else {
+            // Delete last character from current cell's text
+            const currentVal = updated[row][col + 1];
+            updated[row][col + 1] = currentVal ? currentVal.slice(0, -1) : '';
+        }
+
+        setRows(updated);
+        return;
+    } else {
+        // If key is not handled, do nothing
+        return;
     }
+
+    e.preventDefault();
+    setSelectedCell({ row: nextRow, col: nextCol });
+    setRangeStart(null);
+    setRangeEnd(null);
+};
+
+
+    const handleMouseDown = (row, col) => {
+        setSelectedCell({ row, col });
+        setRangeStart({ row, col });
+        setRangeEnd(null);
+    };
+
+    const handleMouseOver = (row, col) => {
+        if (rangeStart) {
+            setRangeEnd({ row, col });
+        }
+    };
+
+    const handleMouseUp = () => {
+        if (rangeStart && rangeEnd === null) {
+            setRangeEnd(rangeStart); // single-cell select
+        }
+    };
+
+
 
     return (
         <div className="p-4 w-full max-w-full">
@@ -247,80 +312,40 @@ const CSVEditor = () => {
                 >
                     <FiPlus /> Add Row
                 </button>
+                <button
+                    className="hover:bg-gray-100 px-4 py-2 cursor-pointer flex items-center gap-2"
+                    onClick={toggleFilterInput}
+                >
+                    <FiFilter /> Filter
+                </button>
             </div>
 
             {/* Table */}
             <div className="overflow-auto max-h-[600px] border border-gray-300 rounded">
-                <table className="table-auto w-full border-collapse border border-gray-300 text-sm">
-                    <thead className="bg-gray-50 sticky top-0">
+                <table className="table-auto w-full border-collapse text-center">
+                    <thead>
                         <tr>
-                            <th className="border border-gray-300 px-2 py-1 sticky bg-gray-200 z-10">S.No</th>
+                            <th className="border px-2 py-1 text-center">S.No</th>
                             {columns.map((col, index) => (
-                                <th
-                                    key={index}
-                                    className="border border-gray-300 px-2 py-1 relative bg-gray-100"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <input
-                                            className="w-full bg-transparent focus:outline-none text-sm font-semibold"
-                                            value={col}
-                                            onChange={(e) => {
-                                                const newCols = [...columns];
-                                                newCols[index] = e.target.value;
-                                                setColumns(newCols);
-                                            }}
-                                        />
-                                        <div
-                                            ref={(el) => (dropdownRefs.current[index] = el)}
-                                            className="relative"
-                                        >
-                                            <button
-                                                onClick={() =>
-                                                    setMenuOpenIndex(menuOpenIndex === index ? null : index)
-                                                }
-                                                className="p-1 hover:bg-gray-200 rounded"
-                                                aria-label="Open column menu"
-                                            >
-                                                <FiMoreVertical />
+                                <th key={index} className="border px-2 py-1 text-center relative">
+                                    {col}
+                                    <button
+                                        onClick={() => setMenuOpenIndex(index)}
+                                        className="absolute top-1 right-1"
+                                    >
+                                        <FiMoreVertical />
+                                    </button>
+                                    {menuOpenIndex === index && (
+                                        <div ref={(ref) => dropdownRefs.current[index] = ref} className="absolute bg-white border shadow p-2 z-10 right-0">
+                                            <button onClick={() => handleDeleteColumn(index)} className="flex items-center text-sm">
+                                                <FiTrash className="mr-1" /> Delete Column
                                             </button>
-                                            {menuOpenIndex === index && (
-                                                <div className="absolute top-6 right-0 bg-white border border-gray-300 rounded shadow-md z-30 w-44 absolute z-50 ">
-                                                    <ul className="text-left text-sm">
-                                                        <li
-                                                            className="hover:bg-gray-100 px-4 py-2 cursor-pointer flex items-center gap-2"
-                                                            onClick={() => handleSortAsc(index)}
-                                                        >
-                                                            <FiChevronUp /> Sort Asc
-                                                        </li>
-                                                        <li
-                                                            className="hover:bg-gray-100 px-4 py-2 cursor-pointer flex items-center gap-2"
-                                                            onClick={() => handleSortDesc(index)}
-                                                        >
-                                                            <FiChevronDown /> Sort Desc
-                                                        </li>
-                                                        <li
-                                                            className="hover:bg-gray-100 px-4 py-2 cursor-pointer flex items-center gap-2"
-                                                            onClick={() => toggleFilterInput(index)}
-                                                        >
-                                                            <FiFilter /> Filter
-                                                        </li>
-                                                        <li
-                                                            className="hover:bg-red-100 px-4 py-2 cursor-pointer text-red-600 flex items-center gap-2"
-                                                            onClick={() => handleDeleteColumn(index)}
-                                                        >
-                                                            <FiTrash /> Delete Column
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            )}
                                         </div>
-                                    </div>
-                                    {/* Show filter input below header if active */}
+                                    )}
                                     {filters[index] !== undefined && (
                                         <input
-                                            type="text"
-                                            placeholder={`Filter ${columns[index]}`}
-                                            className="w-full border border-gray-300 mt-1 rounded px-1 text-xs"
+                                            className="w-full text-sm border mt-1"
+                                            placeholder="Filter"
                                             value={filters[index]}
                                             onChange={(e) => handleFilterChange(index, e.target.value)}
                                         />
@@ -331,38 +356,52 @@ const CSVEditor = () => {
                     </thead>
                     <tbody>
                         {displayedRows.map((row, rowIndex) => (
-                            <tr
-                                key={rowIndex}
-                                className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                            >
-                                <td className="border border-gray-300 px-2 py-1 bg-white z-10 text-center">
-                                    {row[0]}
-                                </td>
-                                {columns.map((_, colIndex) => (
-                                    <td key={colIndex} className="border border-gray-300 px-2 py-1">
-                                        <input
-                                            type="text"
-                                            className="w-full bg-transparent focus:outline-none text-sm"
-                                            value={row[colIndex + 1]}
-                                            onChange={(e) =>
-                                                handleCellChange(e.target.value, rowIndex, colIndex)
-                                            }
-                                        />
-                                    </td>
-                                ))}
-                                <td className="border border-gray-300 px-2 py-1 text-center">
-                                    <button
-                                        onClick={() => handleDeleteRow(rowIndex)}
-                                        className="text-red-600 hover:text-red-800"
-                                        title="Delete Row"
-                                    >
-                                        <FiTrash />
+                            <tr key={rowIndex}>
+                                {row.map((cell, colIndex) => {
+                                    const actualCol = colIndex - 1;
+
+                                    if (colIndex === 0) {
+                                        return (
+                                            <td key={colIndex} className="border px-2 py-1">{cell}</td>
+                                        );
+                                    }
+
+                                    if (!inputRefs.current[rowIndex]) inputRefs.current[rowIndex] = [];
+
+                                    const isSelected = selectedCell.row === rowIndex && selectedCell.col === actualCol;
+                                    const isHighlighted = isInRange(rowIndex, actualCol);
+
+                                    return (
+                                        <td
+                                            key={colIndex}
+                                            onMouseDown={() => handleMouseDown(rowIndex, actualCol)}
+                                            onMouseOver={(e) => {
+                                                if (e.buttons === 1) handleMouseOver(rowIndex, actualCol);
+                                            }}
+                                            onMouseUp={handleMouseUp}
+                                            className={`border p-0 ${isHighlighted || isSelected ? 'bg-blue-100' : ''}`}
+                                        >
+                                            <input
+                                                ref={(el) => inputRefs.current[rowIndex][actualCol] = el}
+                                                type="text"
+                                                value={cell}
+                                                onChange={(e) => handleCellChange(e.target.value, rowIndex, actualCol)}
+                                                onKeyDown={(e) => handleKeyDown(e, rowIndex, actualCol)}
+                                                className="w-full px-2 py-1 outline-none bg-transparent"
+                                            />
+                                        </td>
+                                    );
+                                })}
+                                <td className="border px-2 py-1 ">
+                                    <button onClick={() => handleDeleteRow(rowIndex)} title="Delete Row">
+                                        <FiTrash className="text-red-600"/>
                                     </button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+
             </div>
         </div>
     );

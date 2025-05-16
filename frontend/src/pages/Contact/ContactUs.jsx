@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import emailjs from '@emailjs/browser';
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import contact from "../../assets/contactus.avif";
+import { FiArrowLeft } from "react-icons/fi";
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
@@ -58,7 +60,7 @@ const ContactSection = () => {
       <div className="md:w-1/2 flex flex-col justify-center p-8 max-w-md mx-auto">
         {/* Logo and Back Home */}
         <div className="flex items-center mb-6 cursor-pointer no-underline" onClick={goHome} title="Back to Home">
-          <span className="text-blue-600 font-semibold  no-underline">← Back Home</span>
+          <span className="text-[#1F2937] font-semibold  no-underline flex text-lg"><FiArrowLeft className="my-1 mr-2"/> Back Home</span>
         </div>
         <h2 className="text-3xl font-bold mb-6 text-gray-800">Contact Us</h2>
         {status && (
@@ -93,7 +95,7 @@ const ContactSection = () => {
           />
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded transition"
+            className=" bg-[#1F2937] text-sm font-semibold text-[#fdfdfd] px-7 py-2.5 rounded-lg hover:bg-[#E0F2FE] hover:text-black transition-colors cursor-pointer"
           >
             Send Message
           </button>
@@ -104,7 +106,7 @@ const ContactSection = () => {
       <div
         className="md:w-1/2 bg-blue-600 text-white flex flex-col justify-center items-center p-10"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80')",
+          backgroundImage: `url(${contact})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
